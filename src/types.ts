@@ -1,84 +1,42 @@
-type Currency = {
-  iso_3: string;
-  symbol: string;
-  title: string;
-};
+import { z } from "zod";
 
-type Amount = {
-  value: number;
-  currency: Currency;
-};
+const CurrencySchema = z.object({
+  iso_3: z.string(),
+  symbol: z.string(),
+  title: z.string(),
+});
 
-type Debitor = {
-  id: string;
-  type: string;
-  name: string;
-  avatar_url: null | string;
-};
+const AmountSchema = z.object({
+  value: z.number(),
+});
 
-type Transaction = {
-  id: string;
-  object: string;
-  type: string;
-  status: string;
-  payment_method: null;
-  wallet: null;
-  date: string;
-  expiration_date: null;
-  amount: Amount;
-  refunded_amount: null;
-  card: null;
-  beneficiary: null;
-  visible: boolean;
-};
+const TransactionSchema = z.object({
+  status: z.string(),
+  payment_method: z.union([z.string(), z.null()]),
+  date: z.string(),
+  amount: AmountSchema,
+});
 
-type Tag = {
-  short: string;
-  long: string;
-  cta: null;
-};
+const TagSchema = z
+  .object({
+    short: z.string().nullable(),
+  })
+  .nullable();
 
-type AvailableSupportTicketsRequests = {
-  go_back_in_time: boolean;
-  refund: boolean;
-  eligibility: boolean;
-  payment_problem: boolean;
-};
+const BaseOperationSchema = z.object({
+  responseBody: z.object({
+    items: z.array(
+      z.object({
+        name: z.string(),
+        amount: AmountSchema,
+        date: z.string(),
+        transactions: z.array(TransactionSchema),
+        tag: TagSchema,
+      })
+    ),
+  }),
+});
 
-export type Operation = {
-  id: string;
-  object: string;
-  type: string;
-  display_type: string;
-  name: string;
-  message: null;
-  debitor: Debitor;
-  creditor: null;
-  initiator: null;
-  amount: Amount;
-  amount_hidden: null;
-  main_payment_method: null;
-  date: string;
-  small_icon: {
-    url: null;
-    category: null;
-  };
-  large_icon: {
-    url: null;
-    category: string;
-  };
-  vendor_merchant_id: string;
-  is_bank_imprint: boolean;
-  requests_in_progress: any[];
-  card: {
-    uuid: string;
-  };
-  transactions: Transaction[];
-  tag: Tag;
-  available_support_tickets_requests: AvailableSupportTicketsRequests;
-  source_operation_id: null;
-  related_operations: null;
-  support_tickets: null;
-  is_visible: boolean;
-  details: any[];
-};
+export const ArrayOfOperationsSchema = z.array(
+  BaseOperationSchema.passthrough()
+);

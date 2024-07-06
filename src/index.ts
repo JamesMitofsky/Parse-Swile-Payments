@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Operation } from "./types";
+import { ArrayOfOperationsSchema } from "./types";
 
 // Asynchronously read the JSON file and console.log its contents
 fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
@@ -8,10 +8,18 @@ fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
     console.error("Error reading the file:", err);
     return;
   }
+
   try {
-    const jsonObj: Operation = JSON.parse(data);
-    console.log(jsonObj);
-  } catch (parseErr) {
-    console.error("Error parsing JSON:", parseErr);
+    // Parse the JSON string to an object
+    const jsonObj = JSON.parse(data);
+    // Validate and parse the object using the Zod schema. If it passes, the `operation` is now a typed object according to the Operation interface
+    const operation = ArrayOfOperationsSchema.parse(jsonObj);
+
+    // console.log(operation);
+    operation[0].responseBody.items.forEach((item) => console.log(item));
+
+    // the statuses that interest me are declined and captured
+  } catch (err) {
+    console.error("Validation failed:", err);
   }
 });
