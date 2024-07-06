@@ -45,7 +45,7 @@ type AvailableSupportTicketsRequests = {
   payment_problem: boolean;
 };
 
-type Operation = {
+export type Operation = {
   id: string;
   object: string;
   type: string;

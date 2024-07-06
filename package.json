@@ -15,7 +15,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
-    "ts-node": "^10.0.0",
-    "nodemon": "^2.0.0"
+    "nodemon": "^2.0.0",
+    "prettier": "^3.3.2",
+    "ts-node": "^10.0.0"
   }
 }
