@@ -10,7 +10,11 @@ const TransactionSchema = z.object({
     z.literal("CAPTURED"),
     z.literal("VALIDATED"),
   ]),
-  payment_method: z.union([z.string(), z.null()]),
+  payment_method: z.union([
+    z.literal("CreditCard"),
+    z.literal("Wallets::MealVoucherWallet"),
+    z.null(),
+  ]),
   date: z.string(),
   amount: AmountSchema,
 });
