@@ -15,27 +15,20 @@ const TransactionSchema = z.object({
     z.literal("Wallets::MealVoucherWallet"),
     z.null(),
   ]),
-  date: z.string(),
-  amount: AmountSchema,
 });
 
-const TagSchema = z
-  .object({
-    short: z.string().nullable(),
-  })
-  .nullable();
+const OperationSchema = z.object({
+  name: z.string(),
+  amount: AmountSchema,
+  date: z.string(),
+  transactions: z.array(TransactionSchema),
+});
 
-const BaseOperationSchema = z.object({
+export type OperationType = z.infer<typeof OperationSchema>;
+
+export const BaseOperationSchema = z.object({
   responseBody: z.object({
-    items: z.array(
-      z.object({
-        name: z.string(),
-        amount: AmountSchema,
-        date: z.string(),
-        transactions: z.array(TransactionSchema),
-        tag: TagSchema,
-      })
-    ),
+    items: z.array(OperationSchema),
   }),
 });
 
