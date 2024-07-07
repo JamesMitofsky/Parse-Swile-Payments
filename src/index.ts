@@ -15,14 +15,28 @@ fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
     // Validate and parse the object using the Zod schema. If it passes, the `operation` is now a typed object according to the Operation interface
     const operations = ArrayOfOperationsSchema.parse(jsonObj);
 
-    operations.forEach((operation) => {
-      operation.responseBody.items.forEach((item) => {
-        const succeededTransactions = item.transactions.filter(
-          ({ status }) => status !== "DECLINED"
-        );
-        console.log(JSON.stringify(succeededTransactions, null, 2));
-      });
-    });
+    // Filter the operations to only include the ones that have at least one transaction with a status of "CAPTURED"
+    const successfulOperations = operations.map(({ responseBody: { items } }) =>
+      items.filter((item) =>
+        item.transactions.some(({ status }) => status !== "DECLINED")
+      )
+    );
+
+    const operationsWithReadableDate = successfulOperations.map((operation) =>
+      operation.map((item) => ({
+        ...item,
+        date: new Date(item.date).toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+      }))
+    );
+
+    // reverse the order of the operations
+    operationsWithReadableDate.reverse();
+
+    console.log(JSON.stringify(operationsWithReadableDate, null, 2));
 
     // the statuses that interest me are declined and captured
   } catch (err) {

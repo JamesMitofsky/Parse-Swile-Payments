@@ -11,6 +11,8 @@
 I've run across some vocabularly which I'm not familiar with, and since what I'm doing isn't really an intended way of the public engaging with the platform, it's not very well documented. What follows is my best understanding of things:
 
 ## VALIDATED
-Refers to the confirmation that the transaction request (such as a purchase or a redemption) has been received and verified as syntactically correct and potentially compliant with basic business rules.
+Refers to the the meal voucher credits assigned by the company. This represents a positive balance change.
 ## CAPTURED
-Indicates that the transaction has been fully processed or completed, often implying that the action (such as payment or voucher redemption) has been successfully executed.
+Indicates that a payment transaction has been fully processed, and the funds have been widthdrawn from the account.
+## DECLINED
+An attempted payment did not succeed and no funds have moved from the account.
