@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-const CurrencySchema = z.object({
-  iso_3: z.string(),
-  symbol: z.string(),
-  title: z.string(),
-});
-
 const AmountSchema = z.object({
   value: z.number(),
 });
