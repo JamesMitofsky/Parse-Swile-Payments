@@ -16,9 +16,12 @@ fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
     const operations = ArrayOfOperationsSchema.parse(jsonObj);
 
     operations.forEach((operation) => {
-      operation.responseBody.items.forEach((item) =>
-        console.log(JSON.stringify(item, null, 2))
-      );
+      operation.responseBody.items.forEach((item) => {
+        const succeededTransactions = item.transactions.filter(
+          ({ status }) => status !== "DECLINED"
+        );
+        console.log(JSON.stringify(succeededTransactions, null, 2));
+      });
     });
 
     // the statuses that interest me are declined and captured

@@ -11,7 +11,11 @@ const AmountSchema = z.object({
 });
 
 const TransactionSchema = z.object({
-  status: z.string(),
+  status: z.union([
+    z.literal("DECLINED"),
+    z.literal("CAPTURED"),
+    z.literal("VALIDATED"),
+  ]),
   payment_method: z.union([z.string(), z.null()]),
   date: z.string(),
   amount: AmountSchema,
