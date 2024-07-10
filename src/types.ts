@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-const AmountSchema = z.object({
-  value: z.number(),
-});
-
 const TransactionSchema = z.object({
   status: z.union([
     z.literal("DECLINED"),
@@ -15,11 +11,13 @@ const TransactionSchema = z.object({
     z.literal("Wallets::MealVoucherWallet"),
     z.null(),
   ]),
+  amount: z.object({
+    value: z.number(),
+  }),
 });
 
 const OperationSchema = z.object({
   name: z.string(),
-  amount: AmountSchema,
   date: z.string(),
   transactions: z.array(TransactionSchema),
 });
@@ -35,3 +33,14 @@ export const BaseOperationSchema = z.object({
 export const ArrayOfOperationsSchema = z.array(
   BaseOperationSchema.passthrough()
 );
+
+// EXPORT TYPES
+
+const CsvOperationSchema = z.object({
+  name: z.string(),
+  amount: z.string(),
+  date: z.string(),
+  transactions: z.array(TransactionSchema),
+});
+
+export type CsvOperationType = z.infer<typeof CsvOperationSchema>;

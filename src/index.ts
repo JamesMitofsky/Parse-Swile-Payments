@@ -1,6 +1,11 @@
 import fs from "fs";
-import path from "path";
-import { ArrayOfOperationsSchema, OperationType } from "./types";
+import path, { join } from "path";
+import {
+  ArrayOfOperationsSchema,
+  CsvOperationType,
+  OperationType,
+} from "./types";
+import { createObjectCsvWriter } from "csv-writer";
 
 // Asynchronously read the JSON file and console.log its contents
 fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
@@ -47,23 +52,63 @@ fs.readFile(path.join(__dirname, "requests.json"), "utf8", (err, data) => {
       return acc;
     }, [] as OperationType[]);
 
-    const formatNumbersAndDates = successfulOperations.map((operation) => ({
-      ...operation,
-      amount: (operation.amount.value / 100).toFixed(2),
-      date: new Date(operation.date).toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }),
-    }));
+    // update the format
+    const formatNumbersAndDates: CsvOperationType[] = successfulOperations.map(
+      (operation) => {
+        const formattedOperation: CsvOperationType = {
+          ...operation,
+          amount: (operation.transactions[0].amount.value / 100).toFixed(2), // Assuming operation.amount is a number
+          date: new Date(operation.date).toLocaleDateString("en-US", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),
+        };
 
-    // print most recent transactions last
-    const operationsWithMostRecentFirst = formatNumbersAndDates.reverse();
+        return formattedOperation;
+      }
+    );
 
-    console.log(JSON.stringify(operationsWithMostRecentFirst, null, 2));
+    console.log(JSON.stringify(formatNumbersAndDates, null, 2));
+
+    exportToCSV(formatNumbersAndDates);
 
     // the statuses that interest me are declined and captured
   } catch (err) {
     console.error("Validation failed:", err);
   }
 });
+
+const exportToCSV = async (data: CsvOperationType[]) => {
+  const timestamp = new Date()
+    .toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })
+    .replace(/ /g, ""); // Remove spaces
+
+  const path = join(__dirname, `swile-network-traffic-${timestamp}.csv`);
+
+  const csvWriter = createObjectCsvWriter({
+    path,
+    header: [
+      { id: "name", title: "Name" },
+      { id: "amount", title: "Amount" },
+      { id: "date", title: "Date" },
+      { id: "payment_method", title: "Payment method" },
+    ],
+  });
+
+  const formattedData = data.map((operation) => ({
+    ...operation,
+    payment_method: operation.transactions[0].payment_method,
+  }));
+
+  try {
+    await csvWriter.writeRecords(formattedData);
+    console.log(`${path} was saved.`);
+  } catch (err) {
+    console.error("Error writing CSV file:", err);
+  }
+};
